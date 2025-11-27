@@ -1,0 +1,77 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1-create-status-type-enum" author="NikitaShvetsS">
+        <sql>
+            CREATE TYPE status_type AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2-create-role-enum" author="NikitaShvetsS">
+        <sql>
+            CREATE TYPE role_type AS ENUM ('USER', 'ADMIN');
+        </sql>
+    </changeSet>
+
+    <changeSet id="3-create-priority-enum" author="NikitaShvetsS">
+        <sql>
+            CREATE TYPE priority AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+        </sql>
+    </changeSet>
+
+    <changeSet id="4-create-user-table" author="NikitaShvetsS">
+        <createTable tableName="users">
+            <column name="uuid" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="role_type">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5-create-task-table" author="NikitaShvetsS">
+        <createTable tableName="tasks">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="status" type="status_type">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="priority">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deadline" type="date"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="user_uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="tasks"
+                baseColumnNames="user_uuid"
+                constraintName="fk_tasks_user"
+                referencedTableName="users"
+                referencedColumnNames="uuid"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
